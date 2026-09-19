@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generazioni Voli</title>
+    <link rel="stylesheet" href="/static/css/flight-generator.css" />
+
+  </head>
+  <body class="flight-page">
+    <main class="flight-app">
+      <header class="hero">
+        <div>
+          <small>IFR DISPATCHER / ENGINE V2</small>
+          <h1>Generazioni Voli</h1>
+          <p>Rotte calcolate con mission score, piano carburante, compatibilità pista e profilo SimBrief.</p>
+        </div>
+        <div class="hero-clock">
+          <span>LOCAL</span>
+          <strong id="local-clock">--:--</strong>
+          <span>UTC</span>
+          <strong id="utc-clock">--:--</strong>
+        </div>
+      </header>
+
+      <section class="grid">
+        <form id="flight-form" class="card form-card">
+          <div class="section-title">
+            <small>01 / CONFIGURAZIONE</small>
+            <h2>Parametri dispatch</h2>
+          </div>
+
+          <div class="fields">
+            <label>
+              ATC Callsign
+              <input id="callsign" value="NJE001" maxlength="12" required />
+            </label>
+
+            <label>
+              Aeromobile
+              <select id="aircraft"></select>
+            </label>
+
+            <label>
+              SimBrief variant
+              <select id="variant">
+                <option value="">Auto / default</option>
+              </select>
+            </label>
+
+            <label>
+              Unità peso
+              <select id="units">
+                <option value="LBS">LBS</option>
+                <option value="KGS">KGS</option>
+              </select>
+            </label>
+
+            <label>
+              Continente
+              <select id="continent"></select>
+            </label>
+
+            <label>
+              Nazione
+              <select id="country"></select>
+            </label>
+
+            <label>
+              Partenza ICAO
+              <input id="departure" maxlength="4" placeholder="opzionale" />
+            </label>
+
+            <label>
+              Arrivo ICAO
+              <input id="arrival" maxlength="4" placeholder="opzionale" />
+            </label>
+
+            <label>
+              Block time (minuti)
+              <input id="block-time" type="number" min="20" value="60" />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Tipologia aeroporti</legend>
+            <div id="airport-types" class="chips">
+              <button type="button" data-type="small_airport">Small</button>
+              <button type="button" data-type="large_airport">Large</button>
+              <button type="button" data-type="medium_airport">Medium</button>
+            </div>
+          </fieldset>
+
+          <div class="actions">
+            <button class="primary" type="submit">Genera volo</button>
+            <button id="simbrief" type="button">Apri SimBrief</button>
+          </div>
+
+          <p id="status" class="status">Engine pronto</p>
+        </form>
+
+        <aside class="card briefing">
+          <div class="section-title">
+            <small>02 / RISULTATO MIGLIORE</small>
+            <h2>Flight brief</h2>
+          </div>
+          <div id="brief">
+            <p>Genera una rotta per visualizzare il piano.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="card results">
+        <div class="section-title">
+          <small>03 / CANDIDATE ROUTES</small>
+          <h2>Voli suggeriti</h2>
+        </div>
+        <div id="results" class="result-grid"></div>
+      </section>
+    </main>
+
+<script src="/data/aerei.js"></script>
+<script src="/data/airport.js"></script>
+<script src="/data/missions-db.js"></script>
+<script src="/data/flight-engine.js"></script>
+<script src="/static/js/generazione-voli.js"></script>
+  </body>
+  
+</html>

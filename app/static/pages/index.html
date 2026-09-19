@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MSFS Career Simulator</title>
+    <link rel="stylesheet" href="/static/css/flight-generator.css" />
+  </head>
+  <body class="index-page">
+    <aside class="sidebar">
+      <div class="brand">
+        <span>MS</span>
+        <div>
+          <small>LOCAL OPS</small>
+          <h1>Career System</h1>
+        </div>
+      </div>
+
+      <nav aria-label="Navigazione principale">
+        <a class="active" href="/generazioni-voli">Generazioni voli</a>
+        <a href="#">Missioni</a>
+        <a href="#">Aeromobili</a>
+        <a href="#">Aeroporti</a>
+      </nav>
+
+      <div class="side-status">
+        <small>SERVER STATUS</small>
+        <strong><i></i> ONLINE</strong>
+        <span>File locali · database integrato</span>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <span>FASTAPI / LOCAL</span>
+        <span>LOCAL <b id="local-time">--:--:--</b> · UTC <b id="utc-time">--:--:--</b></span>
+      </header>
+
+      <iframe title="Generazione voli" src="/generazioni-voli"></iframe>
+    </main>
+
+    <script src="/static/js/index.js"></script>
+  </body>
+</html>
