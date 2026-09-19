@@ -1,0 +1,24 @@
+Il file implementa un motore di pianificazione voli IFR per simulatori di volo (chiaramente pensato per Microsoft Flight Simulator, visto i riferimenti a MSFS scenery e SimBrief). Ti spiego come funziona dall'esterno verso l'interno.
+
+Il punto d'ingresso è generateFlights(), il metodo principale della classe IfrFlightEngine. Tu gli passi il tipo di aeromobile, il callsign, e opzionalmente filtri geografici (continente, paese, tipo di aeroporto) e un target di tempo di blocco o distanza. Lui ti restituisce fino a 5 piani di volo ordinati per qualità.
+
+Internamente, la sequenza è questa.
+
+Prima cosa: costruisce un pool di aeroporti validi (buildAirportPool). Il filtro non è banale — non si tratta solo di continente e paese, ma anche di compatibilità pista. Ogni aeroporto ha una singola categoria (BIZ JET) e un aeromobile può atterrare solo dove la categoria della pista è compatibile con la sua classe. C'è anche un check sulla lunghezza minima della runway se il dato è disponibile.
+
+Secondo: genera coppie origine-destinazione candidate. Calcola una finestra di distanza target in base al block time desiderato (o alla distanza massima), e poi fa un doppio loop su tutti gli aeroporti validi cercando coppie che ricadono in quella finestra. Se non ne trova, allarga ai limiti operativi dell'aeromobile, e se nemmeno così funziona (ma sono stati specificati un DEP e ARR fissi), forza comunque quella coppia. Infine fa uno shuffle delle coppie trovate e ne campiona un sottoinsieme (default 20) per limitare il costo computazionale.
+
+Terzo: per ogni coppia calcola un piano di volo completo con computeFlightDataV2. Qui sta la parte più densa. In ordine:
+
+Sceglie una missione dalla matrice (carico di atleti, cargo medico, volo VIP…) con estrazione pesata randomica, con un anti-ripetizione che evita di scegliere lo stesso tipo della sessione precedente.
+Dal tipo di missione deriva un profilo di dispatch (quanti passeggeri, quanto cargo, carburante extra) — ad esempio VIP = meno pax, zero cargo, 30 minuti extra di carburante.
+Calcola pax e cargo in modo che non si superi lo Zero Fuel Weight massimo (MZFW).
+Calcola il flight level ottimale con regola semicircolare IFR reale: eastbound → FL dispari, westbound → FL pari. Tiene anche conto del peso dell'aeromobile (più è carico, vola più basso) e di un floor hardcoded per le zone montuose (Alpi, Rockies, Himalaya, ecc.).
+Calcola il piano carburante IFR completo: taxi out + trip + contingency 5% + alternate + riserva finale (45 min) + extra missione.
+Se il block fuel supera il 95% della capacità serbatoi, il volo viene scartato.
+Fa fino a 5 iterazioni di aggiustamento pesi: se il ramp weight supera l'MTOW, riduce prima il cargo poi i pax. Se non riesce a far quadrare i conti, scarta il volo.
+Assembla l'URL SimBrief pronto all'uso con tutti i parametri.
+
+Quarto: assegna un Mission Score 0-100 a ogni volo valido. È una somma pesata di sette fattori: quanto la distanza reale corrisponde al block time target (25 pt), efficienza carburante trip/block (20 pt), utilizzo ottimale dell'MZFW (15 pt), flight level nel sweet spot del soffitto operativo (10 pt), compatibilità pista (10 pt, sempre piena perché è già garantita dal pool), coerenza distanza con il range operativo dell'aeromobile (10 pt), e varietà destinazione — penalizza aeroporti già visitati di recente (10 pt).
+
+I voli vengono poi ordinati per score e vengono restituiti i migliori 5.
